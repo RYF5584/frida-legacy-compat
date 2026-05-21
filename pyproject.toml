@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "frida-legacy-compat"
+version = "1.0.0"
+description = "Restore a Frida 16-style Python session.create_script() workflow on Frida 17+"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+  { name = "RYF5584" },
+]
+maintainers = [
+  { name = "RYF5584" },
+]
+dependencies = []
+keywords = ["frida", "compatibility", "bridge", "javascript", "reverse-engineering"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Security",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/RYF5584/frida-legacy-compat"
+Repository = "https://github.com/RYF5584/frida-legacy-compat"
+Issues = "https://github.com/RYF5584/frida-legacy-compat/issues"
+Documentation = "https://github.com/RYF5584/frida-legacy-compat#readme"
+Changelog = "https://github.com/RYF5584/frida-legacy-compat/blob/main/CHANGELOG.md"
+Security = "https://github.com/RYF5584/frida-legacy-compat/security/policy"
+
+[project.optional-dependencies]
+full = [
+  "frida>=17.2,<18",
+]
+
+[project.scripts]
+frida-legacy = "frida_legacy_compat.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
