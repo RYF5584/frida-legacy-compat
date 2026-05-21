@@ -72,6 +72,9 @@ If the input is already a compiled Frida bundle, it is passed through directly.
 
 ## Installation
 
+This package is published on PyPI and can be installed directly from:
+<https://pypi.org/project/frida-legacy-compat/>
+
 Recommended:
 
 ```bash

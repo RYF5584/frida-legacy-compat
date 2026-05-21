@@ -69,6 +69,9 @@ Frida 17 以后，旧版 bridge 默认不再跟随原来的 plain JS 工作流�
 
 ## 安装
 
+本项目已发布到 PyPI，可直接通过 PyPI 安装：
+<https://pypi.org/project/frida-legacy-compat/>
+
 推荐安装方式：
 
 ```bash
