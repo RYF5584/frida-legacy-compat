@@ -1,11 +1,10 @@
-import warnings
-
 from .compat import (
     CompatibilityError,
     ensure_runtime_compatibility,
     get_runtime_status,
     render_doctor_report,
     render_runtime_warning,
+    warn_runtime_status,
 )
 from .loader import (
     BRIDGE_PROFILE_ENV,
@@ -21,6 +20,9 @@ from .loader import (
     resolve_default_bridges,
 )
 from .patch import auto_patch, is_patched, patch_frida, patch_state, unpatch_frida
+
+# Re-export selected compatibility helpers as part of the public API.
+render_runtime_warning = render_runtime_warning
 
 __all__ = [
     "CompatibilityError",
@@ -47,7 +49,5 @@ __all__ = [
 
 _RUNTIME_STATUS = get_runtime_status()
 
-if _RUNTIME_STATUS.supported:
-    auto_patch()
-elif not _RUNTIME_STATUS.no_op:
-    warnings.warn(render_runtime_warning(), RuntimeWarning, stacklevel=2)
+if not _RUNTIME_STATUS.supported:
+    warn_runtime_status(stacklevel=2)

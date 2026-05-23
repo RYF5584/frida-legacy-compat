@@ -26,18 +26,18 @@ def _emit_install_hint() -> None:
     if language == "zh-CN":
         message = (
             "\n[frida-legacy-compat] 安装提示:\n"
-            "- frida < 17: 本库可安装，但导入后默认静默 no-op\n"
-            "- 17.0 <= frida < 17.2: 当前暂不支持，导入时会提示升级到 frida>=17.2,<18\n"
-            "- 17.2 <= frida < 18: 当前支持范围\n"
-            "- 如需同时安装推荐版本，可使用: pip install 'frida-legacy-compat[full]'\n"
+            "- 本库安装时不限制 frida 版本\n"
+            "- 推荐可用范围: frida>=17.2,<18\n"
+            "- 如果当前 frida 版本不满足，导入时会自动给出中英文 warning 提示\n"
+            "- 如需同时安装 frida，可使用: pip install 'frida-legacy-compat[full]'\n"
         )
     else:
         message = (
             "\n[frida-legacy-compat] Install note:\n"
-            "- frida < 17: installable, but import defaults to a silent no-op\n"
-            "- 17.0 <= frida < 17.2: currently unsupported; importing will warn and ask for frida>=17.2,<18\n"
-            "- 17.2 <= frida < 18: supported range\n"
-            "- To install with the recommended Frida range: pip install 'frida-legacy-compat[full]'\n"
+            "- This package does not restrict the installed frida version\n"
+            "- Recommended supported range: frida>=17.2,<18\n"
+            "- If the current frida version is unsupported, importing will emit a localized warning\n"
+            "- To install this package together with frida, use: pip install 'frida-legacy-compat[full]'\n"
         )
     print(message)
 

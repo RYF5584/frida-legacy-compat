@@ -25,6 +25,7 @@ This package is the one-step fix:
 
 - install once
 - add `import frida_legacy_compat`
+- call `frida_legacy_compat.patch_frida()` explicitly
 - keep passing legacy JavaScript strings to `session.create_script(source)`
 - keep using `Java`, `ObjC`, and `Swift` globals directly
 
@@ -32,7 +33,7 @@ Repository: <https://github.com/RYF5584/frida-legacy-compat>
 
 ## Features
 
-- Automatically patches `frida.core.Session.create_script()` on import
+- Patches `frida.core.Session.create_script()` explicitly when enabled
 - Detects legacy bridge scripts and compiles them on demand
 - Installs the required bridge packages automatically
 - No Node.js is required
@@ -55,8 +56,9 @@ This package is usually not needed when:
 
 ## How It Works
 
-Importing `frida_legacy_compat` monkey-patches
-`frida.core.Session.create_script()`.
+Importing `frida_legacy_compat` alone does not patch anything.
+You must call `frida_legacy_compat.patch_frida()` explicitly to
+monkey-patch `frida.core.Session.create_script()`.
 
 When the input source contains `Java.`, `ObjC.`, `Swift.`, or ESM
 `import/export` syntax, the patch will:
@@ -81,11 +83,17 @@ Recommended:
 pip install frida-legacy-compat
 ```
 
-Install with the recommended Frida range:
+Install together with `frida` if needed:
 
 ```bash
 pip install 'frida-legacy-compat[full]'
 ```
+
+Notes:
+
+- This package does not restrict the installed `frida` version
+- The recommended range is `frida>=17.2,<18`
+- If the current `frida` version is unsupported, both `import frida_legacy_compat` and `frida_legacy_compat.patch_frida()` emit a localized warning instead of raising an error
 
 With `uv`:
 
@@ -102,16 +110,18 @@ uv add 'frida-legacy-compat[full]'
 
 ## Compatibility
 
-- `frida < 17`: installable, safe to keep `import frida_legacy_compat`, and defaults to a silent no-op
-- `17.0 <= frida < 17.2`: unsupported
+- `frida < 17`: installable; both `import` and `patch_frida()` only warn and remain a no-op
+- `17.0 <= frida < 17.2`: installable; both `import` and `patch_frida()` only warn that `frida>=17.2,<18` is required
 - `17.2 <= frida < 18`: supported
-- `frida >= 18`: currently treated as unvalidated
+- `frida >= 18`: installable; both `import` and `patch_frida()` only warn that the version is outside the validated range
 
 ## Quick Start
 
 ```python
 import frida
 import frida_legacy_compat
+
+frida_legacy_compat.patch_frida()
 
 device = frida.get_usb_device()
 session = device.attach("com.example.app")
@@ -172,7 +182,7 @@ If needed, you can still override the selection by:
 - passing `patch_frida(bridges=[...])`
 - setting `FRIDA_LEGACY_COMPAT_BRIDGE_PROFILE`
 
-### Disable auto patching
+### Use environment variables with `auto_patch()`
 
 ```bash
 export FRIDA_LEGACY_COMPAT_AUTO_PATCH=0

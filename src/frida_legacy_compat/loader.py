@@ -45,7 +45,8 @@ def _load_frida():
         return importlib.import_module("frida")
     except ImportError as exc:
         raise RuntimeError(
-            "frida is required. Install it with: pip install 'frida>=17.2,<18'"
+            "frida is required. Install it with: pip install frida. "
+            "Recommended supported range: frida>=17.2,<18"
         ) from exc
 
 

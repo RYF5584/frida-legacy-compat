@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "frida-legacy-compat"
-version = "1.0.0"
+version = "1.1.0"
 description = "Restore a Frida 16-style Python session.create_script() workflow on Frida 17+"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -45,7 +45,7 @@ Security = "https://github.com/RYF5584/frida-legacy-compat/security/policy"
 
 [project.optional-dependencies]
 full = [
-  "frida>=17.2,<18",
+  "frida",
 ]
 
 [project.scripts]

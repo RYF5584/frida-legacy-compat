@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import locale
 import os
+import warnings
 from dataclasses import dataclass
 from typing import Optional
 
 
 SUPPORTED_MIN_VERSION = (17, 2, 0)
 SUPPORTED_MAX_VERSION = (18, 0, 0)
+_EMITTED_WARNINGS: set[tuple[str, str, Optional[str]]] = set()
 
 
 class CompatibilityError(RuntimeError):
@@ -70,48 +72,54 @@ def _message(language: str, key: str, *, version: Optional[str]) -> str:
             "zh-CN": (
                 "未检测到 frida Python 绑定。\n"
                 "请先安装 `frida`。\n"
-                "推荐：`pip install 'frida>=17.2,<18'` 或 `pip install 'frida-legacy-compat[full]'`"
+                "推荐可用范围：`frida>=17.2,<18`。\n"
+                "可使用：`pip install frida` 或 `pip install 'frida-legacy-compat[full]'`"
             ),
             "en": (
                 "Frida Python bindings are not installed.\n"
                 "Please install `frida` first.\n"
-                "Recommended: `pip install 'frida>=17.2,<18'` or `pip install 'frida-legacy-compat[full]'`"
+                "Recommended supported range: `frida>=17.2,<18`.\n"
+                "You can use: `pip install frida` or `pip install 'frida-legacy-compat[full]'`"
             ),
         },
         "unnecessary_pre17": {
             "zh-CN": (
                 f"检测到 frida 版本为 {version_text}。\n"
-                "Frida 17 以下默认自带 Java/ObjC/Swift bridge，通常不需要安装 `frida-legacy-compat`。\n"
-                "建议：直接使用当前 frida，或卸载本库。"
+                "当前版本不在 `frida-legacy-compat` 的推荐范围内。\n"
+                "推荐范围为 `frida>=17.2,<18`。\n"
+                "Frida 17 以下通常不需要本库，导入后会保持 no-op。"
             ),
             "en": (
                 f"Detected frida version: {version_text}.\n"
-                "Frida versions below 17 already bundle the Java/ObjC/Swift bridges, so `frida-legacy-compat` is usually unnecessary.\n"
-                "Recommendation: use your current frida directly, or uninstall this package."
+                "This version is outside the recommended range for `frida-legacy-compat`.\n"
+                "Recommended range: `frida>=17.2,<18`.\n"
+                "Frida versions below 17 usually do not need this package, and importing will remain a no-op."
             ),
         },
         "unsupported_17_0_to_17_1": {
             "zh-CN": (
                 f"检测到 frida 版本为 {version_text}。\n"
-                "`frida-legacy-compat` 仅支持 Frida 17.2+。\n"
-                "请升级到 `frida>=17.2,<18` 后再使用。"
+                "当前版本不在支持范围内。\n"
+                "请使用 `frida>=17.2,<18`。"
             ),
             "en": (
                 f"Detected frida version: {version_text}.\n"
-                "`frida-legacy-compat` supports Frida 17.2+ only.\n"
-                "Please upgrade to `frida>=17.2,<18` before using this package."
+                "This version is outside the supported range.\n"
+                "Please use `frida>=17.2,<18`."
             ),
         },
         "unsupported_ge18": {
             "zh-CN": (
                 f"检测到 frida 版本为 {version_text}。\n"
-                "当前版本的 `frida-legacy-compat` 只验证了 Frida 17.2.x 到 17.x。\n"
-                "如需继续使用，请等待对 Frida 18+ 的兼容验证或自行覆盖兼容策略。"
+                "当前版本不在已验证范围内。\n"
+                "推荐范围为 `frida>=17.2,<18`。\n"
+                "如需继续使用，请等待 Frida 18+ 兼容验证。"
             ),
             "en": (
                 f"Detected frida version: {version_text}.\n"
-                "This release of `frida-legacy-compat` has only been validated against Frida 17.2.x through 17.x.\n"
-                "Please wait for Frida 18+ compatibility support or override the policy yourself."
+                "This version is outside the validated range.\n"
+                "Recommended range: `frida>=17.2,<18`.\n"
+                "Please wait for Frida 18+ compatibility validation before using it."
             ),
         },
         "supported": {
@@ -161,3 +169,18 @@ def render_doctor_report() -> str:
 def render_runtime_warning() -> str:
     status = get_runtime_status()
     return _message(status.language, status.status, version=status.frida_version)
+
+
+def warn_runtime_status(*, stacklevel: int = 2) -> None:
+    status = get_runtime_status()
+    if status.supported:
+        return
+    key = (status.status, status.language, status.frida_version)
+    if key in _EMITTED_WARNINGS:
+        return
+    _EMITTED_WARNINGS.add(key)
+    warnings.warn(
+        _message(status.language, status.status, version=status.frida_version),
+        RuntimeWarning,
+        stacklevel=stacklevel,
+    )

@@ -22,6 +22,7 @@ Frida 17 以后，旧版 bridge 默认不再跟随原来的 plain JS 工作流�
 
 - 安装一次
 - 多加一行 `import frida_legacy_compat`
+- 显式调用 `frida_legacy_compat.patch_frida()`
 - 继续直接把旧版 JS 字符串传给 `session.create_script(source)`
 - 旧脚本里的 `Java`、`ObjC`、`Swift` 继续可用
 
@@ -29,7 +30,7 @@ Frida 17 以后，旧版 bridge 默认不再跟随原来的 plain JS 工作流�
 
 ## 特性
 
-- 安装后自动 patch `frida.core.Session.create_script()`
+- 显式调用后 patch `frida.core.Session.create_script()`
 - 自动识别旧版 bridge 脚本并按需编译
 - 自动安装所需 bridge 包
 - 不需要 Node.js
@@ -52,7 +53,8 @@ Frida 17 以后，旧版 bridge 默认不再跟随原来的 plain JS 工作流�
 
 ## 工作原理
 
-导入 `frida_legacy_compat` 后，会自动 monkey patch
+导入 `frida_legacy_compat` 后，需要显式调用
+`frida_legacy_compat.patch_frida()` 才会 monkey patch
 `frida.core.Session.create_script()`。
 
 当检测到脚本里包含 `Java.`、`ObjC.`、`Swift.` 或 ESM `import/export`
@@ -78,11 +80,17 @@ Frida 17 以后，旧版 bridge 默认不再跟随原来的 plain JS 工作流�
 pip install frida-legacy-compat
 ```
 
-如果希望同时安装推荐范围内的 Frida：
+如果希望同时安装 `frida`：
 
 ```bash
 pip install 'frida-legacy-compat[full]'
 ```
+
+说明：
+
+- 本库安装时不限制 `frida` 版本
+- 推荐范围为 `frida>=17.2,<18`
+- 如果当前 `frida` 版本不满足，`import frida_legacy_compat` 和 `frida_legacy_compat.patch_frida()` 都只会给出中英文 warning，不会报错
 
 使用 `uv`：
 
@@ -99,16 +107,18 @@ uv add 'frida-legacy-compat[full]'
 
 ## 兼容性
 
-- `frida < 17`：可安装、可保留 `import frida_legacy_compat`，导入后默认静默 no-op
-- `17.0 <= frida < 17.2`：不支持
+- `frida < 17`：可安装；`import` 和 `patch_frida()` 都只会 warning，并保持 no-op
+- `17.0 <= frida < 17.2`：可安装；`import` 和 `patch_frida()` 都只会 warning，提示需要 `frida>=17.2,<18`
 - `17.2 <= frida < 18`：支持
-- `frida >= 18`：当前版本默认视为未验证
+- `frida >= 18`：可安装；`import` 和 `patch_frida()` 都只会 warning，提示当前不在已验证范围内
 
 ## 快速开始
 
 ```python
 import frida
 import frida_legacy_compat
+
+frida_legacy_compat.patch_frida()
 
 device = frida.get_usb_device()
 session = device.attach("com.example.app")
@@ -167,7 +177,7 @@ frida-legacy -U -f com.example.app -l agent.js
 - 直接传 `patch_frida(bridges=[...])`
 - 或设置环境变量 `FRIDA_LEGACY_COMPAT_BRIDGE_PROFILE`
 
-### 关闭自动 patch
+### 使用环境变量控制 `auto_patch()`
 
 ```bash
 export FRIDA_LEGACY_COMPAT_AUTO_PATCH=0

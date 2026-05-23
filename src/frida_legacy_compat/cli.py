@@ -62,7 +62,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         import frida
     except ImportError as exc:
-        raise SystemExit("frida is required. Install it with: pip install 'frida>=17.2,<18'") from exc
+        raise SystemExit(
+            "frida is required. Install it with: pip install frida. "
+            "Recommended supported range: frida>=17.2,<18"
+        ) from exc
 
     try:
         ensure_runtime_compatibility()

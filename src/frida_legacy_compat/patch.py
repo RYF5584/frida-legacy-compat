@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from typing import Any, Optional
 
-from .compat import get_runtime_status
+from .compat import get_runtime_status, warn_runtime_status
 from .loader import build_legacy_bundle
 
 BUNDLE_PREFIX = "📦"
@@ -108,12 +108,12 @@ def patch_frida(
     compile_policy: str | None = None,
 ):
     status = get_runtime_status()
-    if status.no_op:
-        return _load_frida()
     if not status.supported:
-        from .compat import CompatibilityError, render_doctor_report
-
-        raise CompatibilityError(render_doctor_report())
+        warn_runtime_status(stacklevel=2)
+        try:
+            return _load_frida()
+        except Exception:
+            return None
     frida = _load_frida()
     policy = (compile_policy or os.getenv(COMPILE_POLICY_ENV, DEFAULT_COMPILE_POLICY)).lower()
     if policy not in SUPPORTED_POLICIES:
